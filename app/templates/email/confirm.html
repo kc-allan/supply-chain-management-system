@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm your email</title>
+</head>
+<body>
+    <p>Hello, {{current_user.firstname}}</p>
+    <p>Thanks for signing up! Please follow this link to confirm your email address:</p>
+    <p><a href="{{ confirm_url }}">{{ confirm_url }}</a></p>
+    <p>Regards</p>
+    <p>{{app_name}} Onboarding Team</p>
+</body>
+</html>

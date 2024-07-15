@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock title %}
+{% block content %}
+<div id="dashboard-section" class="mb-4">
+	<div class="w-full p-2">
+		<h2 class="text-3xl text-gray-300 font-bold mb-4">Welcome, {{ current_user.firstname }}
+			{% if current_user.company_name %}
+			<span style="color: green;"
+				class="float-right bg-gray-300 p-2 rounded-md text-lg font-bold">{{current_user.company_name}}</span>
+			{% endif %}
+		</h2>
+	</div>
+
+	{% if current_user.role_title != 'Farmer' %}
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		<div class="bg-gray-200 rounded-lg p-4">
+			<h3 class="text-xl font-semibold mb-2">Total Sales</h3>
+			<p class="text-2xl">$120,000</p>
+		</div>
+		<div class="bg-gray-200 rounded-lg p-4">
+			<h3 class="text-xl font-semibold mb-2">New Orders</h3>
+			<p class="text-2xl">45</p>
+		</div>
+		<div class="bg-gray-200 rounded-lg p-4">
+			<h3 class="text-xl font-semibold mb-2">Pending Shipments</h3>
+			<p class="text-2xl">20</p>
+		</div>
+	</div>
+	{% endif %}
+</div>
+<div class="mx-auto">
+	{% if current_user.role_title == 'Manufacturer' %}
+	<div class="w-full p-2">
+		<h3 class="text-xl font-semibold mb-4 mt-6 w-full">Manage Products
+			<button id="addProductButton"
+				class="float-right text-sm bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+				ADD PRODUCT
+			</button>
+		</h3>
+	</div>
+	<div class="overflow-x-auto">
+		<table class="min-w-full bg-white table-responsive table-striped">
+			<thead>
+				<tr>
+					<th class="py-2">Name</th>
+					<th class="py-2">Description</th>
+					<th class="py-2">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% if current_user.products %}
+				{% for product in current_user.products %}
+				<tr>
+					<td class="py-4 px-2 text-center">{{ product.name }}</td>
+					<td class="py-4 px-2 text-center">{{ product.description }}</td>
+					<td class="py-4 px-2 text-center">
+						<a href="{{url_for('products.view_product', product_id=product.id)}}"
+							class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+							DETAILS
+						</a>
+					</td>
+				</tr>
+				{% endfor %}
+				{% else %}
+				<tr>
+					<td colspan="4" class="text-center p-2">You've not added products yet.</td>
+				</tr>
+				{% endif %}
+			</tbody>
+		</table>
+	</div>
+
+	{% endif %}
+
+	{% include 'products/add_product.html' %}
+
+</div>
+
+<!-- Order History -->
+{% if current_user.role_title != 'Manufacturer' %}
+<h3 class="text-xl font-semibold mb-4 mt-6">Order History</h3>
+<div class="overflow-x-auto">
+	<table class="min-w-full bg-white">
+		<thead>
+			<tr>
+				<th class="py-2">Order Dtae</th>
+				<th class="py-2">Units Purchased</th>
+				<th class="py-2">Total Spent</th>
+				<th class="py-2">Status</th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			{% if current_user.orders_placed %}
+			{% for order in current_user.orders_placed %}
+			<tr>
+				<td class="py-2">{{ order.order_date.strftime("%d %B %Y %H:%M") }}</td>
+				<td class="py-2">{{ order.quantity }}</td>
+				<td class="py-2">{{ order.total_price }}</td>
+				{% if order.shipment %}
+				<td class="py-2">{{ order.shipment.status }}</td>
+				{% else %}
+				<td class="py-2">{{ order.status }}</td>
+				{% endif %}
+				<td class="py-4 px-2 text-center">
+					<a href="{{url_for('orders.view_order', order_id=order.id)}}"
+						class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+						VIEW
+					</a>
+				</td>
+			</tr>
+			{% endfor %}
+			{% else %}
+			<tr>
+				<td colspan="4" class="p-2 text-center">No Order History</td>
+			</tr>
+			{% endif %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+
+<!-- Orders Received -->
+{% if current_user.role_title != 'Farmer' %}
+<h3 class="text-xl font-semibold mb-4 mt-6">Orders Requests</h3>
+<div class="overflow-x-auto">
+	<table class="min-w-full bg-white">
+		<thead class="text-center">
+			<tr>
+				<th class="py-2">Order Date</th>
+				<th class="py-2">Quantity</th>
+				<th class="py-2">Total</th>
+				<th class="py-2">Status</th>
+				<th class="py-2">Delivery Address</th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			{% if current_user.orders_received %}
+			{% for order in current_user.orders_received %}
+			<tr>
+				<td class="py-2">{{ order._created_at }}</td>
+				<td class="py-2">{{ order.quantity }} units</td>
+				<td class="py-2">{{ order.total_price }}</td>
+				{% if order.shipment %}
+				<td class="py-2">{{ order.shipment.status }}</td>
+				{% else %}
+				<td class="py-2">{{ order.status }}</td>
+				{% endif %}
+				<td class="py-2">{{ order.delivery_address }}</td>
+			</tr>
+			{% endfor %}
+			{% else %}
+			<tr class="text-center w-full">
+				<td colspan="5" class="p-2">No Orders yet.</td>
+			</tr>
+			{% endif %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+
+<!-- Reports and Analytics -->
+{% if current_user.role_title != 'Farmer' %}
+<div class="overflow-x-auto">
+	<div class="w-full p-2">
+		<h3 class="text-xl font-semibold mb-4 mt-6 w-full">Shipments
+			<button id="createShipmentButton"
+				class="float-right text-sm bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+				CREATE SHIPMENT
+			</button>
+		</h3>
+	</div>
+	<table class="min-w-full bg-white">
+		<thead>
+			<tr>
+				<th class="py-2">Shipment Date</th>
+				<th class="py-2">Last Updated</th>				
+				<th class="py-2">Destination</th>
+				<th class="py-2">Current Location</th>
+				<th class="py-2">Status</th>
+				<th class="py-2">Action</th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			{% if current_user.shipments %}
+			{% for shipment in current_user.shipments %}
+			<tr>
+				<td class="py-2">{{ shipment.created_at.strftime('%d %B %Y %H:%M') }}</td>
+				<td class="py-2">{{ shipment.updated_at.strftime('%d %B %Y %H:%M') }}</td>
+				<td class="py-2">{{ shipment.destination }}</td>
+				<td class="py-2">{{ shipment.current_location }}</td>
+				<td class="py-2">{{ shipment.status }}</td>
+				<td class="py-4 px-2 text-center">
+					<a href="{{url_for('shipments.view_shipment', shipment_id=shipment.id)}}"
+						class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+						DETAILS
+					</a>
+				</td>
+			</tr>
+			{% endfor %}
+			{% else %}
+			<tr>
+				<td colspan="6" class="p-2 text-center">No Shipment History</td>
+			</tr>
+			{% endif %}
+		</tbody>
+	</table>
+
+	{% include 'shipments/create_shipment.html' %}
+</div>
+
+<div id="reports-section" class="">
+	<h2 class="text-3xl font-bold mb-4">Reports</h2>
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		<div class="bg-gray-200 rounded-lg p-4">
+			<h3 class="text-xl font-semibold mb-2">Sales Report</h3>
+			<p class="text-lg">Download monthly sales reports to track your revenue.</p>
+			<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
+				Download
+			</button>
+		</div>
+		<div class="bg-gray-200 rounded-lg p-4">
+			<h3 class="text-xl font-semibold mb-2">Inventory Report</h3>
+			<p class="text-lg">Keep an eye on your inventory levels with detailed reports.</p>
+			<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
+				Download
+			</button>
+		</div>
+		<div class="bg-gray-200 rounded-lg p-4">
+			<h3 class="text-xl font-semibold mb-2">Customer Report</h3>
+			<p class="text-lg">Analyze customer data to understand buying patterns.</p>
+			<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
+				Download
+			</button>
+		</div>
+	</div>
+</div>
+{% endif %}
+{% endblock content %}

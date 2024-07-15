@@ -1,0 +1,168 @@
+<div class="text-center mt-8">
+    <button id="openModalButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Create Listing
+    </button>
+</div>
+
+<!-- The Modal -->
+<div id="createListingModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+        <!-- Modal Close Button -->
+        <button id="closeModalButton" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+            &times;
+        </button>
+
+        <!-- Modal Content -->
+        <h2 class="text-2xl font-bold mb-4">Create Listing</h2>
+        <form id="createListingForm" action="/listings/add" method="POST">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-4">
+                <label for="productId" class="block text-gray-700 font-bold mb-2">Product</label>
+                <select id="productId" name="product_id"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 font-bold mb-2">Description</label>
+                <textarea id="description" name="description"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    rows="4" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="avatar" class="block text-gray-700 font-bold mb-2">Product Avatar</label>
+                <input id="avatar" name="avatar" type="file"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    rows="4" required>
+            </div>
+            <div class="flex gap-4">
+                <div class="mb-4">
+                    <label for="price" class="block text-gray-700 font-bold mb-2">Price per Unit (KSH)</label>
+                    <input type="number" id="price" name="price"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                </div>
+                <div class="mb-4">
+                    <label for="availableStock" class="block text-gray-700 font-bold mb-2">Available Units (kgs)</label>
+                    <input type="number" id="availableStock" name="quantity"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="minOrder" class="block text-gray-700 font-bold mb-2">Minimum Order Quantity</label>
+                <input type="number" id="minOrder" name="min_order"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const openModalButton = document.getElementById('openModalButton');
+        const closeModalButton = document.getElementById('closeModalButton');
+        const createListingModal = document.getElementById('createListingModal');
+        const createListingForm = document.getElementById('createListingForm');
+        const avatarInput = document.getElementById('avatar');
+        let avatarPath = '';
+        const productSelect = document.querySelector('#productId');
+        var products = {};
+        var description = document.querySelector('#description');
+
+        productSelect.addEventListener('input', () => {
+            description.value = products[productSelect.value]['description'];
+        });
+
+        openModalButton.addEventListener('click', function () {
+            createListingModal.classList.remove('hidden');
+        });
+
+        closeModalButton.addEventListener('click', function () {
+            createListingModal.classList.add('hidden');
+        });
+
+        window.addEventListener('click', function (event) {
+            if (event.target === createListingModal) {
+                createListingModal.classList.add('hidden');
+            }
+        });
+
+        avatarInput.addEventListener('change', function () {
+            const file = avatarInput.files[0];
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            fetch('/listings/upload/avatar', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        avatarPath = data.file_path;
+                    } else {
+                        alert('Error uploading file');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error uploading file');
+                });
+        });
+
+        createListingForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(createListingForm);
+            formData.set('avatar', avatarPath);
+
+            fetch('/listings/add', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: formData,
+            })
+                .then(response => {
+                    if (response.ok) {
+                        createListingModal.classList.add('hidden');
+                        alert('Listing created successfully!');
+                    } else {
+                        alert('Error creating listing');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error creating listing');
+                });
+        });
+
+        fetch('/listings/api/products')
+            .then(response => response.json())
+            .then(data => {
+                const productSelect = document.getElementById('productId');
+                data.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = product.name;
+                    option.setAttribute('description', product.description);
+                    products[product.id] = product.description;
+                    productSelect.appendChild(option);
+                });
+                // Set the initial description based on the first product in the list
+                if (data.length > 0) {
+                    description.value = products[data[0].id];
+                }
+            })
+            .catch(error => console.error('Error fetching products:', error));
+    });
+</script>

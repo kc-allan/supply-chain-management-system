@@ -1,0 +1,114 @@
+<!-- Add Batch Popup Form -->
+<div id="addBatchModal"
+	class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 overflow-y-scroll hidden">
+	<div class="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full relative">
+		<button id="closeBatchModal"
+			class="absolute top-2 right-5 font-bold text-3xl text-gray-500 hover:text-gray-700">
+			&times;
+		</button>
+		<h2 class="text-2xl font-bold mb-4">Add Batch</h2>
+		<h1>Upload a multiple batches in a CSV file</h1>
+		<form id="batchUploadForm" action="{{url_for( 'products.batch_upload', product_id=product.id)}}" method="post">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<div class="h-[300px] w-full m-2 p-2">
+				<input type="file" name="batch_csv" id="batch_file" accept="csv">
+			</div>
+			<div>
+				<button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+					type="submit">Upload
+					Batches</button>
+			</div>
+		</form>
+		<details class="mt-2">
+
+			<summary class="font-semibold font-lg cursor-pointer">or Add Manually</summary>
+			<form id="addBatchForm" method="post" action="{{ url_for('products.add_batch', product_id=product.id) }}">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="batchNumber">Batch Number</label>
+					<input
+						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+						id="batchNumber" name="batch_number" type="text" placeholder="Batch Number">
+				</div>
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="manufactureDate">Manufacture
+						Date</label>
+					<input
+						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+						id="manufactureDate" name="manufacture_date" type="date">
+				</div>
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="expiryDate">Expiry Date</label>
+					<input
+						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+						id="expiryDate" name="expiry_date" type="date">
+				</div>
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="batchSize">Batch Size (units)</label>
+					<input
+						class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+						id="batchSize" name="size" type="number" step="any" placeholder="Batch Size">
+				</div>
+				<div class="flex items-center justify-between">
+					<button id="addBatchSubmit"
+						class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit">Add
+						Batch</button>
+				</div>
+			</form>
+		</details>
+	</div>
+</div>
+<script>
+	document.getElementById('showAddBatchModal').addEventListener('click', function () {
+		document.getElementById('addBatchModal').classList.remove('hidden');
+	});
+
+	document.getElementById('closeBatchModal').addEventListener('click', function () {
+		document.getElementById('addBatchModal').classList.add('hidden');
+	});
+	document.querySelector('#batchUploadForm').addEventListener('submit', async (event) => {
+		event.preventDefault()
+		const file = document.querySelector('#batch_file').files[0]
+		if (!file) {
+			alert('Please select a file to upload')
+			return
+		}
+		const formData = new FormData()
+		formData.append('batch_csv', file)
+		try {
+			const response = await fetch("{{url_for('products.batch_upload', product_id=product.id)}}", {
+				method: 'POST',
+				body: formData
+			})
+			if (!response.ok) {
+				const error = await response.json()
+				throw new Error(error.message)
+			}
+			alert('Batches uploaded successfully')
+		} catch (error) {
+			alert(error.message)
+		}
+	})
+	document.getElementById('addBatchSubmit').addEventListener('click', function () {
+		// Retrieve form data
+		var batchNumber = document.getElementById('batchNumber').value;
+		var manufactureDate = document.getElementById('manufactureDate').value;
+		var expiryDate = document.getElementById('expiryDate').value;
+		var batchSize = document.getElementById('batchSize').value;
+
+		// Create list item for display
+		var batchList = document.getElementById('batchList');
+		var listItem = document.createElement('li');
+		listItem.textContent = `Batch Number: ${batchNumber}, Manufacture Date: ${manufactureDate}, Expiry Date: ${expiryDate}, Size: ${batchSize} units`;
+		batchList.appendChild(listItem);
+
+		// Hide modal
+		document.getElementById('addBatchModal').classList.add('hidden');
+
+		// Clear form inputs
+		document.getElementById('batchNumber').value = '';
+		document.getElementById('manufactureDate').value = '';
+		document.getElementById('expiryDate').value = '';
+		document.getElementById('batchSize').value = '';
+	});
+</script>
