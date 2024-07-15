@@ -1,5 +1,3 @@
----
-
 # Supply Chain Management System
 
 ## Overview
@@ -94,7 +92,7 @@ This system is designed to ensure the authenticity and track the movement of fer
 
 2. **Clone your fork:**
     ```bash
-    git clone https://github.com/yourusername/supply-chain-management-system.git
+    git clone https://github.com/kc-allan/supply-chain-management-system.git
     cd supply-chain-management-system
     ```
 
@@ -120,8 +118,4 @@ This system is designed to ensure the authenticity and track the movement of fer
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
-If you have any questions or need further assistance, feel free to contact us at [your-email@example.com](mailto:your-email@example.com).
-
----
-
-This README provides a comprehensive guide to setting up and running the supply chain management system locally, as well as contributing to its development.
+If you have any questions or need further assistance, feel free to contact me at [kiruiallan401@gmail.com](mailto:kiruiallan401@gmail.com).
