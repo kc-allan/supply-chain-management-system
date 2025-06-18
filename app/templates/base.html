@@ -5,13 +5,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{% endblock title %} | {{ app_name }}</title>
-  <link href="{{ url_for('static', filename='styles/output.css') }}" rel="stylesheet">
+  <!-- Tailwind CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     html,
     body {
-      width: 100;
+      width: 100%;
       margin: 0;
       padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+    }
+
+    .hero-overlay {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.9) 0%, rgba(16, 185, 129, 0.8) 100%);
+    }
+
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .feature-card {
+      transition: all 0.3s ease;
+      border: 1px solid rgba(229, 231, 235, 0.5);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      border-color: #10b981;
+    }
+
+    .testimonial-card {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .testimonial-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #059669, #10b981, #34d399);
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
     }
 
     .toggle-nav {
@@ -29,17 +99,21 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: 50%;
-      background-color: #34d399;
-      padding-top: 20px;
+      width: 75%;
+      max-width: 300px;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      padding-top: 80px;
       transform: translateX(100%);
       transition: transform 0.3s ease-in-out;
+      z-index: 40;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
     }
 
     #toggle-btn.active {
       position: fixed;
-      top: 10px;
-      right: 10px;
+      top: 20px;
+      right: 20px;
+      z-index: 50;
     }
 
     #toggle-btn span {
@@ -63,6 +137,49 @@
     #mobile-nav.active {
       transform: translateX(0);
     }
+
+    .nav-link {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: #34d399;
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .stats-counter {
+      font-size: 2.5rem;
+      font-weight: 700;
+      /* color: #059669; */
+    }
+
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-20px);
+      }
+    }
   </style>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -72,65 +189,116 @@
           flashed.classList.add('hidden');
         }, 3000);
       }
+
+      // Animate stats counters
+      const counters = document.querySelectorAll('.stats-counter');
+      counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const increment = target / 100;
+        let current = 0;
+
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          counter.textContent = Math.floor(current);
+        }, 20);
+      });
     });
+
     function toggleNav() {
       const nav = document.getElementById('mobile-nav');
-      const btn = document.getElementById('toggle-btn')
-      nav.classList.toggle('active');
-      btn.classList.toggle('active')
-    }
+      const btn = document.getElementById('toggle-btn');
+      const overlay = document.getElementById('mobile-overlay');
 
+      nav.classList.toggle('active');
+      btn.classList.toggle('active');
+
+      if (nav.classList.contains('active')) {
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+      }
+    }
   </script>
 </head>
 
-<body class="bg-gray-100 text-gray-900 relative">
+<body class="bg-gray-50 text-gray-900 relative">
+  <!-- Mobile overlay -->
+  <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden" onclick="toggleNav()">
+  </div>
+
   {% if current_user %}
-  {{current_user.role_title}}
+  <div class="fixed top-4 left-4 z-20 bg-white px-3 py-1 rounded-full shadow-lg text-sm font-medium text-gray-700">
+    <i class="fas fa-user-circle mr-1"></i>{{current_user.role_title}}
+  </div>
   {%endif%}
+
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-  <ul id="flashed" class="flex flex-col w-[100%] fixed top-5 items-center bg-transparent">
+  <div id="flashed" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 space-y-2">
     {% for category, message in messages %}
-    <li class="m-2 p-2 font-italic font-bold rounded-md
-    {% if category == 'error' %} bg-red-400
-    {% elif category == 'warn' %} bg-yellow-200
-    {% else %} bg-gray-300 text-black font-bold 
-    {% endif %}">{{message}}</li>
+    <div class="px-6 py-3 rounded-lg font-medium shadow-lg backdrop-blur-sm
+    {% if category == 'error' %} bg-red-500 text-white
+    {% elif category == 'warn' %} bg-yellow-500 text-white
+    {% else %} bg-green-500 text-white
+    {% endif %}">
+      <i class="fas fa-
+      {% if category == 'error' %}exclamation-triangle
+      {% elif category == 'warn' %}exclamation-circle
+      {% else %}check-circle
+      {% endif %} mr-2"></i>{{message}}
+    </div>
     {% endfor %}
-  </ul>
+  </div>
   {% endif %}
   {% endwith %}
-  <header class="bg-green-600 text-white shadow-lg">
-    <div class="container mx-auto flex justify-between items-center p-4">
-      <a href="{{ url_for('main.index') }}" class="text-3xl font-bold">{{ app_name }}</a>
-      <div id="toggle-btn" class="flex md:hidden cursor-pointer bg-transparent relative h-10 w-10 z-10"
+
+  <header class="sticky top-0 z-40 gradient-bg text-white shadow-2xl">
+    <div class="container mx-auto flex justify-between items-center p-6">
+      <a href="{{ url_for('main.index') }}" class="text-2xl md:text-3xl font-bold flex items-center">
+        <i class="fas fa-seedling mr-3 text-green-200"></i>{{ app_name }}
+      </a>
+
+      <div id="toggle-btn" class="flex md:hidden cursor-pointer bg-transparent relative h-10 w-10 z-50"
         onclick="toggleNav()">
-        <span class="absolute top-1/4 h-1 w-10 bg-white rounded-md"></span>
-        <span class="absolute top-1/2 h-1 w-10 bg-white rounded-md"></span>
-        <span class="absolute top-3/4 h-1 w-10 bg-white rounded-md"></span>
+        <span class="absolute top-1/4 h-0.5 w-8 bg-white rounded-full"></span>
+        <span class="absolute top-1/2 h-0.5 w-8 bg-white rounded-full"></span>
+        <span class="absolute top-3/4 h-0.5 w-8 bg-white rounded-full"></span>
       </div>
+
       <nav id="nav-menu" class="hidden md:flex md:items-center">
-        <ul class="flex flex-col md:flex-row md:space-x-6 text-lg">
+        <ul class="flex space-x-8 text-lg">
           {% if current_user.is_authenticated %}
           <li><a href="{{ url_for('accounts.dashboard') }}"
-              class="block py-2 px-4 hover:bg-green-700 rounded">Dashboard</a></li>
+              class="nav-link px-4 py-2 hover:text-green-200 transition-colors">
+              <i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a></li>
           <li><a href="{{ url_for('listings.view_listings') }}"
-              class="block py-2 px-4 hover:bg-green-700 rounded">Marketplace</a></li>
-          <li><a href="{{ url_for('accounts.profile') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Profile</a>
-          </li>
+              class="nav-link px-4 py-2 hover:text-green-200 transition-colors">
+              <i class="fas fa-shopping-cart mr-2"></i>Marketplace</a></li>
+          <li><a href="{{ url_for('accounts.profile') }}"
+              class="nav-link px-4 py-2 hover:text-green-200 transition-colors">
+              <i class="fas fa-user mr-2"></i>Profile</a></li>
           {% endif %}
-          <li><a href="{{ url_for('main.how_it_works') }}" class="block py-2 px-4 hover:bg-green-700 rounded">How It
-              Works</a></li>
-          <li><a href="{{ url_for('main.contact_us') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Contact
-              Us</a></li>
+          <li><a href="{{ url_for('main.how_it_works') }}"
+              class="nav-link px-4 py-2 hover:text-green-200 transition-colors">
+              <i class="fas fa-info-circle mr-2"></i>How It Works</a></li>
+          <li><a href="{{ url_for('main.contact_us') }}"
+              class="nav-link px-4 py-2 hover:text-green-200 transition-colors">
+              <i class="fas fa-envelope mr-2"></i>Contact</a></li>
           {% if current_user.is_authenticated %}
-          <li><a href="{{ url_for('accounts.logout') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Log Out</a>
-          </li>
+          <li><a href="{{ url_for('accounts.logout') }}"
+              class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition-colors">
+              <i class="fas fa-sign-out-alt mr-2"></i>Log Out</a></li>
           {% else %}
-          <li><a href="{{ url_for('accounts.sign_up') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Create
-              Account</a></li>
-          <li><a href="{{ url_for('accounts.sign_in') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Sign In</a>
-          </li>
+          <li><a href="{{ url_for('accounts.sign_up') }}"
+              class="bg-white text-green-600 hover:bg-gray-100 px-4 py-2 rounded-lg font-semibold transition-colors">
+              <i class="fas fa-user-plus mr-2"></i>Sign Up</a></li>
+          <li><a href="{{ url_for('accounts.sign_in') }}"
+              class="border-2 border-white hover:bg-white hover:text-green-600 px-4 py-2 rounded-lg font-semibold transition-colors">
+              <i class="fas fa-sign-in-alt mr-2"></i>Sign In</a></li>
           {% endif %}
         </ul>
       </nav>
@@ -138,70 +306,130 @@
   </header>
 
   <!-- Mobile Navigation -->
-  <nav id="mobile-nav" class="fixed top-0 right-0 bottom-0 w-1/2 bg-green-500 pt-20">
-    <ul class="flex flex-col md:flex-row md:space-x-6 text-lg">
-      <li><a href="{{ url_for('accounts.dashboard') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Dashboard</a>
-      </li>
-      <li><a href="{{ url_for('listings.view_listings') }}"
-          class="block py-2 px-4 hover:bg-green-700 rounded">Marketplace</a></li>
-      <li><a href="{{ url_for('accounts.profile') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Profile</a>
-      </li>
-      <li><a href="{{ url_for('main.how_it_works') }}" class="block py-2 px-4 hover:bg-green-700 rounded">How It
-          Works</a></li>
-      <li><a href="{{ url_for('main.contact_us') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Contact Us</a>
-      </li>
+  <nav id="mobile-nav" class="fixed top-0 right-0 bottom-0 pt-20 z-40">
+    <ul class="flex flex-col space-y-4 text-lg px-6">
       {% if current_user.is_authenticated %}
-      <li><a href="{{ url_for('accounts.logout') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Log Out</a></li>
+      <li><a href="{{ url_for('accounts.dashboard') }}"
+          class="block py-3 px-4 text-white hover:bg-white hover:text-green-600 rounded-lg transition-colors">
+          <i class="fas fa-tachometer-alt mr-3"></i>Dashboard</a></li>
+      <li><a href="{{ url_for('listings.view_listings') }}"
+          class="block py-3 px-4 text-white hover:bg-white hover:text-green-600 rounded-lg transition-colors">
+          <i class="fas fa-shopping-cart mr-3"></i>Marketplace</a></li>
+      <li><a href="{{ url_for('accounts.profile') }}"
+          class="block py-3 px-4 text-white hover:bg-white hover:text-green-600 rounded-lg transition-colors">
+          <i class="fas fa-user mr-3"></i>Profile</a></li>
+      {% endif %}
+      <li><a href="{{ url_for('main.how_it_works') }}"
+          class="block py-3 px-4 text-white hover:bg-white hover:text-green-600 rounded-lg transition-colors">
+          <i class="fas fa-info-circle mr-3"></i>How It Works</a></li>
+      <li><a href="{{ url_for('main.contact_us') }}"
+          class="block py-3 px-4 text-white hover:bg-white hover:text-green-600 rounded-lg transition-colors">
+          <i class="fas fa-envelope mr-3"></i>Contact Us</a></li>
+      {% if current_user.is_authenticated %}
+      <li><a href="{{ url_for('accounts.logout') }}"
+          class="block py-3 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+          <i class="fas fa-sign-out-alt mr-3"></i>Log Out</a></li>
       {% else %}
-      <li><a href="{{ url_for('accounts.sign_up') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Create
-          Account</a></li>
-      <li><a href="{{ url_for('accounts.sign_in') }}" class="block py-2 px-4 hover:bg-green-700 rounded">Sign In</a>
-      </li>
+      <li><a href="{{ url_for('accounts.sign_up') }}"
+          class="block py-3 px-4 bg-white text-green-600 hover:bg-gray-100 rounded-lg font-semibold transition-colors">
+          <i class="fas fa-user-plus mr-3"></i>Create Account</a></li>
+      <li><a href="{{ url_for('accounts.sign_in') }}"
+          class="block py-3 px-4 border-2 border-white hover:bg-white hover:text-green-600 text-white rounded-lg font-semibold transition-colors">
+          <i class="fas fa-sign-in-alt mr-3"></i>Sign In</a></li>
       {% endif %}
     </ul>
   </nav>
 
   <!-- Main Content -->
-  <main class="container mx-auto p-4 h-full">
+  <main class="min-h-screen">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer -->
-  <footer class="bg-green-600 text-white mt-8">
-    <div class="container mx-auto py-8 px-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div>
-        <h3 class="text-xl font-bold mb-4">About {{ app_name }}</h3>
-        <p class="text-sm">{{ app_name }} is dedicated to ensuring the authenticity and quality of fertilizers by
-          leveraging blockchain technology to track the journey from the manufacturer to the farmer.</p>
-      </div>
-      <div>
-        <h3 class="text-xl font-bold mb-4">Quick Links</h3>
-        <ul class="space-y-2 text-sm">
-          <li><a href="{{ url_for('main.index') }}" class="hover:underline">Home</a></li>
-          <li><a href="{{ url_for('main.how_it_works') }}" class="hover:underline">How It Works</a></li>
-          <li><a href="{{ url_for('main.contact_us') }}" class="hover:underline">Contact Us</a></li>
-          <li><a href="{{ url_for('accounts.sign_in') }}" class="hover:underline">Sign In</a></li>
-          <li><a href="{{ url_for('accounts.sign_up') }}" class="hover:underline">Create Account</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-xl font-bold mb-4">Follow Us</h3>
-        <div class="flex space-x-4 text-sm">
-          <a href="#" class="hover:text-gray-300"><svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-              <path
-                d="M24 4.5a9.83 9.83 0 0 1-2.83.78 4.9 4.9 0 0 0 2.17-2.7 9.92 9.92 0 0 1-3.12 1.2A4.92 4.92 0 0 0 11.75 9a13.94 13.94 0 0 1-10.13-5.13 4.94 4.94 0 0 0-.67 2.48 4.93 4.93 0 0 0 2.18 4.11 4.88 4.88 0 0 1-2.23-.62v.06a4.93 4.93 0 0 0 3.95 4.83 4.96 4.96 0 0 1-2.22.08 4.93 4.93 0 0 0 4.6 3.42 9.88 9.88 0 0 1-6.1 2.1c-.4 0-.79-.02-1.17-.07a13.95 13.95 0 0 0 7.56 2.22c9.05 0 14-7.5 14-14 0-.21 0-.42-.02-.62a10.06 10.06 0 0 0 2.46-2.56z" />
-            </svg></a>
-          <a href="#" class="hover:text-gray-300"><svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-              <path
-                d="M12 2.04c-5.52 0-10 4.48-10 10 0 4.41 2.89 8.14 6.84 9.49.5.09.68-.22.68-.49v-1.71c-2.78.6-3.37-1.35-3.37-1.35-.46-1.17-1.11-1.48-1.11-1.48-.91-.62.07-.61.07-.61 1.01.07 1.54 1.05 1.54 1.05.9 1.54 2.36 1.09 2.93.84.09-.65.35-1.09.64-1.34-2.22-.25-4.55-1.11-4.55-4.93 0-1.09.39-1.98 1.02-2.68-.1-.25-.44-1.27.1-2.65 0 0 .83-.27 2.73 1.02A9.55 9.55 0 0 1 12 6.8c.84.004 1.68.11 2.47.32 1.9-1.29 2.72-1.02 2.72-1.02.54 1.38.2 2.4.1 2.65.63.7 1.01 1.59 1.01 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.69.92.69 1.85v2.74c0 .27.18.58.69.48A10.02 10.02 0 0 0 22 12.04c0-5.52-4.48-10-10-10z" />
-            </svg></a>
+  <footer class="gradient-bg text-white mt-16">
+    <div class="container mx-auto py-12 px-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="md:col-span-2">
+          <div class="flex items-center mb-4">
+            <i class="fas fa-seedling text-3xl mr-3 text-green-200"></i>
+            <h3 class="text-2xl font-bold">{{ app_name }}</h3>
+          </div>
+          <p class="text-green-100 mb-6 leading-relaxed">Revolutionizing fertilizer authenticity through blockchain
+            technology. We ensure every farmer receives genuine, quality fertilizers by creating an immutable record
+            from manufacturer to field.</p>
+          <div class="flex space-x-4">
+            <a href="#"
+              class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all">
+              <i class="fab fa-twitter text-white"></i>
+            </a>
+            <a href="#"
+              class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all">
+              <i class="fab fa-facebook text-white"></i>
+            </a>
+            <a href="#"
+              class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all">
+              <i class="fab fa-linkedin text-white"></i>
+            </a>
+            <a href="#"
+              class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all">
+              <i class="fab fa-instagram text-white"></i>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-xl font-semibold mb-4 text-green-200">Quick Links</h4>
+          <ul class="space-y-3">
+            <li><a href="{{ url_for('main.index') }}"
+                class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-home mr-2"></i>Home</a></li>
+            <li><a href="{{ url_for('main.how_it_works') }}"
+                class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-cogs mr-2"></i>How It Works</a></li>
+            <li><a href="{{ url_for('main.contact_us') }}"
+                class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-envelope mr-2"></i>Contact Us</a></li>
+            <li><a href="{{ url_for('accounts.sign_in') }}"
+                class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-sign-in-alt mr-2"></i>Sign In</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-xl font-semibold mb-4 text-green-200">Support</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-question-circle mr-2"></i>Help Center</a></li>
+            <li><a href="#" class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i>Privacy Policy</a></li>
+            <li><a href="#" class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-file-contract mr-2"></i>Terms of Service</a></li>
+            <li><a href="#" class="text-green-100 hover:text-white transition-colors flex items-center">
+                <i class="fas fa-bug mr-2"></i>Report Issue</a></li>
+          </ul>
         </div>
       </div>
     </div>
-    <div class="bg-green-700 text-center py-4">
-      <p class="text-sm">&copy; 2024 {{ app_name }}. All rights reserved.</p>
+    <div class="border-t border-green-400 border-opacity-30">
+      <div class="container mx-auto px-6 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-green-100 text-sm mb-4 md:mb-0">
+            &copy; 2024 {{ app_name }}. All rights reserved. | Powered by Blockchain Technology
+          </p>
+          <div class="flex space-x-4 text-sm text-green-100">
+            <span class="flex items-center">
+              <i class="fas fa-shield-alt mr-2"></i>Secure
+            </span>
+            <span class="flex items-center">
+              <i class="fas fa-check-circle mr-2"></i>Verified
+            </span>
+            <span class="flex items-center">
+              <i class="fas fa-leaf mr-2"></i>Sustainable
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </body>
+
 
 </html>

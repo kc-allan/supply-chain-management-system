@@ -28,9 +28,9 @@ def send_email(to, subject, template):
         print(f"Email sending error: {e}")
         abort(500)
 
-def send_confirmation_email(user_email):
+def send_confirmation_email(user_email, subject="Verify your email"):
     token = generate_confirmation_token(user_email)
     confirm_url = url_for('accounts.verify_token', token=token, _external=True)
     html = render_template('email/confirm.html', confirm_url=confirm_url)
-    subject = "Please confirm your email"
+    subject = subject or "Please confirm your email"
     send_email(user_email, subject, html)

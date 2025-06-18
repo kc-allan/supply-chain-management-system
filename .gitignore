@@ -2,11 +2,10 @@ __pycache__/
 *.pyc
 *.pyo
 
-config.py
-
 development.db
 test.py
 venv/
 
 drawing_board.md
 test2.py
+.*

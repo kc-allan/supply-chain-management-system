@@ -1,143 +1,351 @@
 {% extends 'base.html' %}
 
-{% block title %}MarketPlace{% endblock title %}
+{% block title %}MarketPlace - Verified Agricultural Products{% endblock title %}
 
 {% block content %}
-<div class="w-full mx-auto py-8">
-	{% if current_user.role_title != 'Farmer' %}
-	{% if current_user.inventory %}
-	<a href="{{url_for('listings.view_inventory', inventory_id=current_user.inventory.id)}}"
-		class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-		MANAGE INVENTORY
-	</a>
-	{% else %}
-	<button id="showInventoryModal" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-		CREATE AN INVENTORY
-	</button>
-	{% endif %}
-	{% endif %}
-	{% include 'listings/create_inventory.html' %}
-	<div class="bg-white shadow-md rounded-lg p-6">
-		<!-- Tabs or Title for Product Listings -->
-		{% if current_user.role_title != 'Farmer' and current_user.role_title != 'Manufacturer' and
-		current_user.role_title != 'Administrator'
-		%}
-		<div class="flex justify-center mb-6">
-			<div class="mr-4 cursor-pointer">
-				<a href="#" id="my-listings-tab" class="text-3xl font-bold border-b-2 border-blue-600">My Listings</a>
-			</div>
-			<div class="cursor-pointer">
-				<a href="#" id="other-listings-tab" class="text-xl underline text-gray-600">Product Listings</a>
-			</div>
-		</div>
-		{% elif current_user.role_title != 'Farmer' and current_user.role_title != 'Administrator' %}
-		<h2 class="text-3xl font-bold mb-4 text-center">My Listings</h2>
-		{% elif current_user.role_title != 'Manufacturer' or current_user.role_title == 'Administrator' %}
-		<h2 class="text-3xl font-bold mb-4 text-center">Product Listings</h2>
-		{% endif %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-r from-green-600 via-green-700 to-green-800 text-white py-16">
+  <div class="absolute inset-0 opacity-20">
+    <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl transform -translate-x-32 -translate-y-32"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl transform translate-x-32 translate-y-32"></div>
+  </div>
+  
+  <div class="container mx-auto px-6 relative z-10">
+    <div class="text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        Verified <span class="text-green-200">Agricultural Products</span>
+      </h1>
+      <p class="text-xl text-green-100 mb-8 max-w-3xl mx-auto">
+        Browse authentic, blockchain-verified fertilizers and agricultural products from trusted manufacturers and suppliers
+      </p>
+      
+      <!-- Trust indicators -->
+      <div class="flex flex-wrap justify-center items-center gap-8 text-green-200">
+        <div class="flex items-center">
+          <i class="fas fa-shield-check mr-2"></i>
+          <span class="font-medium">100% Verified</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-link mr-2"></i>
+          <span class="font-medium">Blockchain Tracked</span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-award mr-2"></i>
+          <span class="font-medium">Quality Assured</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-		<!-- Filters Section -->
-		<div class="flex justify-between mb-6">
-			<div>
-				<label for="actor-filter" class="text-sm font-medium text-gray-700">Filters:</label>
-				<select id="actor-filter" name="actor-filter"
-					class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-					<option value="all">All</option>
-					<option value="manufacturer">Manufacturers</option>
-					<option value="wholesaler">Wholesalers</option>
-					<option value="retailer">Retailers</option>
-				</select>
-			</div>
-			<div>
-				<button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-					Apply Filter
-				</button>
-			</div>
-		</div>
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-6">
+    
+    <!-- Quick Actions Bar -->
+    {% if current_user.role_title != 'Farmer' %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="flex items-center">
+          <i class="fas fa-store text-2xl text-green-600 mr-3"></i>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Inventory Management</h3>
+            <p class="text-sm text-gray-600">Manage your product listings and inventory</p>
+          </div>
+        </div>
+        {% if current_user.inventory %}
+        <a href="{{url_for('listings.view_inventory', inventory_id=current_user.inventory.id)}}"
+           class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center">
+          <i class="fas fa-cog mr-2"></i>
+          Manage Inventory
+        </a>
+        {% else %}
+        <button id="showInventoryModal" 
+                class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center">
+          <i class="fas fa-plus mr-2"></i>
+          Create Inventory
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
 
-		<!-- Product Listings -->
-		{% if current_user.role_title != 'Farmer' and current_user.role_title != 'Administrator' %}
-		<div id="my-listings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-			{% for product in my_listings %}
-			<div class="bg-gray-200 rounded-lg overflow-hidden shadow-md">
-				<p class="p-2 text-gray-900 font-bold m-2">Posted On: {{ product.created_at.strftime('%d %B %Y %H:%M') }}</p>
-				<img class="bg-contain w-full bg-center p-2" src="../../{{ product.avatar_path }}" alt="{{ product.name }}"
-					class="w-full h-48 object-cover">
-				<div class="p-4">
-					<h3 class="text-xl font-semibold mb-2">{{ product.product_name }}</h3>
-					<p class="text-gray-700 mb-4">{{ product.description }}</p>
-					<p class="text-gray-500 font-bold mb-2">Shipping to be negotiated</p>
-					<p class="text-gray-900 font-bold mb-2">Price: ${{ product.price }}</p>
-					<p class="text-gray-900 font-bold mb-2">Min Order: {{ product.min_order }} kgs</p>
-					<p class="text-gray-900 font-bold mb-2">Order Requests: {{ product.orders | length }}</p>
-				</div>
-			</div>
-			{% endfor %}
-		</div>
-		{% endif %}
+    {% include 'listings/create_inventory.html' %}
 
-		{% if current_user.role_title != 'Manufacturer' or current_user.role_title == 'Administrator' %}
-		<div id="other-listings"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 {% if current_user.role_title == 'Farmer' %}{% else %}hidden{% endif %}">
-			{% for product in products %}
-			<div class="bg-gray-200 rounded-lg h-[300px] overflow-hidden shadow-md">
-				<h3 class="p-2 text-xl font-semibold font-italic">{{product.product.manufacturer.company_name}}</h3>
-				<p class="p-2 text-gray-900 font-bold mb-2">Posted On: {{ product.created_at.strftime('%d %B %Y %H:%M') }}</p>
-				<img src="../../{{ product.avatar_path }}" alt="{{ product.product_name }}"
-					class="w-full object-cover p-2">
-				<div class="p-4">
-					<h3 class="text-xl font-semibold mb-2">{{ product.product_name }}</h3>
-					<p class="text-gray-700 mb-4">{{ product.description }}</p>
-					<p class="text-gray-500 font-bold mb-2">Shipping to be negotiated</p>
-					<p class="text-gray-900 font-bold mb-2">Price: ${{ product.price }}</p>
-					<div class="flex gap-4">
-						<p class="text-gray-900 mb-2"><strong>Min Order: </strong>{{ product.min_order }} kgs</p>
-						<p class="text-gray-900 mb-2"><strong>Unit Size: </strong>{{ product.min_order }} kgs</p>
-					</div>
-					<div class="flex justify-end">
-						<a href="/orders/place_order/{{product.id}}"
-							class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-							Place Order
-						</a>
-					</div>
-				</div>
-			</div>
-			{% endfor %}
-		</div>
-		{% endif %}
-	</div>
+    <!-- Main Content Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      
+      <!-- Navigation Tabs -->
+      {% if current_user.role_title != 'Farmer' and current_user.role_title != 'Manufacturer' and current_user.role_title != 'Administrator' %}
+      <div class="border-b border-gray-200">
+        <div class="flex justify-center">
+          <nav class="flex space-x-8 px-6" aria-label="Tabs">
+            <a href="#" id="my-listings-tab" 
+               class="py-4 px-1 border-b-2 border-green-600 font-medium text-lg text-green-600 whitespace-nowrap">
+              <i class="fas fa-list mr-2"></i>My Listings
+            </a>
+            <a href="#" id="other-listings-tab" 
+               class="py-4 px-1 border-b-2 border-transparent font-medium text-lg text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap transition-colors">
+              <i class="fas fa-store mr-2"></i>Browse Products
+            </a>
+          </nav>
+        </div>
+      </div>
+      {% elif current_user.role_title != 'Farmer' and current_user.role_title != 'Administrator' %}
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+          <i class="fas fa-list text-blue-600 mr-3"></i>My Product Listings
+        </h2>
+        <p class="text-gray-600 mt-1">Manage and track your product inventory</p>
+      </div>
+      {% elif current_user.role_title != 'Manufacturer' or current_user.role_title == 'Administrator' %}
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+          <i class="fas fa-store text-green-600 mr-3"></i>Available Products
+        </h2>
+        <p class="text-gray-600 mt-1">Browse verified agricultural products from trusted suppliers</p>
+      </div>
+      {% endif %}
+
+      <!-- Filters Section -->
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div class="flex items-center space-x-4">
+            <label for="actor-filter" class="text-sm font-medium text-gray-700 flex items-center">
+              <i class="fas fa-filter mr-2"></i>Filter by Supplier:
+            </label>
+            <select id="actor-filter" name="actor-filter"
+                    class="form-select rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+              <option value="all">All Suppliers</option>
+              <option value="manufacturer">Manufacturers</option>
+              <option value="wholesaler">Wholesalers</option>
+              <option value="retailer">Retailers</option>
+            </select>
+          </div>
+          <button class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center">
+            <i class="fas fa-check mr-2"></i>Apply Filter
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Sections -->
+      <div class="p-6">
+        
+        <!-- My Listings Section -->
+        {% if current_user.role_title != 'Farmer' and current_user.role_title != 'Administrator' %}
+        <div id="my-listings" class="{% if current_user.role_title == 'Farmer' %}hidden{% endif %}">
+          {% if my_listings %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in my_listings %}
+            <div class="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+              <!-- Product Image -->
+              <div class="relative h-48 bg-gradient-to-br from-green-50 to-green-100 overflow-hidden">
+                <img src="../../{{ product.avatar_path }}" alt="{{ product.name }}" 
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                <div class="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-medium">
+                  <i class="fas fa-shield-check mr-1"></i>Verified
+                </div>
+                <div class="absolute top-3 left-3 bg-white bg-opacity-90 text-gray-700 px-2 py-1 rounded-lg text-xs">
+                  {{ product.created_at.strftime('%d %b %Y') }}
+                </div>
+              </div>
+              
+              <!-- Product Info -->
+              <div class="p-5">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition-colors">
+                  {{ product.product_name }}
+                </h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
+                
+                <!-- Price and Order Info -->
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold text-green-600">${{ product.price }}</span>
+                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">per unit</span>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="text-gray-500">Min Order:</span>
+                      <span class="font-semibold text-gray-800">{{ product.min_order }} kg</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Orders:</span>
+                      <span class="font-semibold text-gray-800">{{ product.orders | length }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="pt-2 border-t border-gray-100">
+                    <p class="text-xs text-gray-500 flex items-center">
+                      <i class="fas fa-truck mr-1"></i>Shipping terms negotiable
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-16">
+            <div class="max-w-md mx-auto">
+              <i class="fas fa-boxes text-6xl text-gray-300 mb-4"></i>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">No listings yet</h3>
+              <p class="text-gray-600 mb-6">Start by creating your first product listing to reach more customers</p>
+              <button class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all">
+                <i class="fas fa-plus mr-2"></i>Create First Listing
+              </button>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Other Listings Section -->
+        {% if current_user.role_title != 'Manufacturer' or current_user.role_title == 'Administrator' %}
+        <div id="other-listings" class="{% if current_user.role_title == 'Farmer' %}{% else %}hidden{% endif %}">
+          {% if products %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in products %}
+            <div class="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+              <!-- Supplier Badge -->
+              <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-sm">{{product.product.manufacturer.company_name}}</span>
+                  <i class="fas fa-certificate text-blue-200"></i>
+                </div>
+              </div>
+              
+              <!-- Product Image -->
+              <div class="relative h-44 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+                <img src="../../{{ product.avatar_path }}" alt="{{ product.product_name }}" 
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                <div class="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-medium">
+                  <i class="fas fa-shield-check mr-1"></i>Verified
+                </div>
+                <div class="absolute top-3 left-3 bg-white bg-opacity-90 text-gray-700 px-2 py-1 rounded-lg text-xs">
+                  {{ product.created_at.strftime('%d %b %Y') }}
+                </div>
+              </div>
+              
+              <!-- Product Info -->
+              <div class="p-5">
+                <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-green-600 transition-colors">
+                  {{ product.product_name }}
+                </h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
+                
+                <!-- Price and Details -->
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold text-green-600">${{ product.price }}</span>
+                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">per unit</span>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="text-gray-500">Min Order:</span>
+                      <span class="font-semibold text-gray-800">{{ product.min_order }} kg</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Unit Size:</span>
+                      <span class="font-semibold text-gray-800">{{ product.min_order }} kg</span>
+                    </div>
+                  </div>
+                  
+                  <div class="pt-2 border-t border-gray-100">
+                    <p class="text-xs text-gray-500 flex items-center mb-3">
+                      <i class="fas fa-truck mr-1"></i>Shipping terms negotiable
+                    </p>
+                    
+                    <a href="/orders/place_order/{{product.id}}" 
+                       class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center">
+                      <i class="fas fa-shopping-cart mr-2"></i>Place Order
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-16">
+            <div class="max-w-md mx-auto">
+              <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">No products found</h3>
+              <p class="text-gray-600 mb-6">Try adjusting your filters or check back later for new products</p>
+              <button class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all">
+                <i class="fas fa-refresh mr-2"></i>Refresh Listings
+              </button>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+        
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-	document.addEventListener('DOMContentLoaded', function () {
-		const myListingsTab = document.getElementById('my-listings-tab');
-		const otherListingsTab = document.getElementById('other-listings-tab');
-		const myListings = document.getElementById('my-listings');
-		const otherListings = document.getElementById('other-listings');
+document.addEventListener('DOMContentLoaded', function () {
+  const myListingsTab = document.getElementById('my-listings-tab');
+  const otherListingsTab = document.getElementById('other-listings-tab');
+  const myListings = document.getElementById('my-listings');
+  const otherListings = document.getElementById('other-listings');
 
-		if (myListingsTab) {
-			myListingsTab.addEventListener('click', function (e) {
-				e.preventDefault();
-				myListingsTab.classList.add('text-3xl', 'font-bold', 'border-blue-600');
-				myListingsTab.classList.remove('text-xl', 'underline', 'text-gray-600');
-				otherListingsTab.classList.remove('text-3xl', 'font-bold', 'border-blue-600');
-				otherListingsTab.classList.add('text-xl', 'underline', 'text-gray-600');
-				myListings.classList.remove('hidden');
-				otherListings.classList.add('hidden');
-			});
-		}
+  if (myListingsTab) {
+    myListingsTab.addEventListener('click', function (e) {
+      e.preventDefault();
+      
+      // Update tab styles
+      myListingsTab.classList.remove('border-transparent', 'text-gray-500');
+      myListingsTab.classList.add('border-green-600', 'text-green-600');
+      
+      otherListingsTab.classList.remove('border-green-600', 'text-green-600');
+      otherListingsTab.classList.add('border-transparent', 'text-gray-500');
+      
+      // Show/hide content
+      myListings.classList.remove('hidden');
+      otherListings.classList.add('hidden');
+    });
+  }
 
-		otherListingsTab.addEventListener('click', function (e) {
-			e.preventDefault();
-			otherListingsTab.classList.add('text-3xl', 'font-bold', 'border-blue-600');
-			otherListingsTab.classList.remove('text-xl', 'underline', 'text-gray-600');
-			if (myListingsTab) {
-				myListingsTab.classList.remove('text-3xl', 'font-bold', 'border-blue-600');
-				myListingsTab.classList.add('text-xl', 'underline', 'text-gray-600');
-				myListings.classList.add('hidden');
-			}
-			otherListings.classList.remove('hidden');
-		});
-	});
+  if (otherListingsTab) {
+    otherListingsTab.addEventListener('click', function (e) {
+      e.preventDefault();
+      
+      // Update tab styles
+      otherListingsTab.classList.remove('border-transparent', 'text-gray-500');
+      otherListingsTab.classList.add('border-green-600', 'text-green-600');
+      
+      if (myListingsTab) {
+        myListingsTab.classList.remove('border-green-600', 'text-green-600');
+        myListingsTab.classList.add('border-transparent', 'text-gray-500');
+        myListings.classList.add('hidden');
+      }
+      
+      // Show content
+      otherListings.classList.remove('hidden');
+    });
+  }
+});
 </script>
+
+<style>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+</style>
+
 {% endblock content %}
