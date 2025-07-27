@@ -53,6 +53,10 @@ def deploy():
     # Create or update user roles
     Role.insert_roles()
 
+@app.route('/healthz')
+def app_status():
+    return '', 200
+
 
 if __name__ == '__main__':
     with app.app_context():
