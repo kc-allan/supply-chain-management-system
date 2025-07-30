@@ -55,7 +55,7 @@ def add_batch(product_id):
         expiry_date=datetime.strptime(
             request.form.get('expiry_date'), '%Y-%m-%d'),
         size=request.form.get('size'),
-        measurement=request.form.get('measurement'),
+        measurement=request.form.get('measurement', 'pcs'),
 
         product_id=product.id,
         product=product
