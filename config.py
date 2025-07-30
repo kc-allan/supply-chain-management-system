@@ -38,7 +38,7 @@ class Config:
     MAIL_TIMEOUT = None
 
     # Mail Credentials Settings
-    MAIL_DEFAULT_SENDER = "Jisort Ublow Team <info@farmtrace.co.ke>"
+    MAIL_DEFAULT_SENDER = "Farm Trace <info@farmtrace.co.ke>"
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "a657725d47162c")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "9f6d390da75284")
 
@@ -56,7 +56,7 @@ class DevelopmentConfig(Config):
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DEVELOPMENT_DATABASE_URL"
-    ) or "sqlite:///" + os.path.join(basedir, "development.db")
+    ) or 'postgresql://neondb_owner:npg_tVpiqJHP2E0o@ep-lingering-silence-aear07vz-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 
 
 class TestingConfig(Config):
