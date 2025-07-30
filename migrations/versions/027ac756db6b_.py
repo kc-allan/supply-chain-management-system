@@ -1,8 +1,8 @@
-"""Initial
+"""empty message
 
-Revision ID: e1d9d1556cc1
+Revision ID: 027ac756db6b
 Revises: 
-Create Date: 2024-07-12 17:57:38.724052
+Create Date: 2025-07-30 10:57:37.862457
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e1d9d1556cc1'
+revision = '027ac756db6b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -36,11 +36,19 @@ def upgrade():
     op.create_table('users',
     sa.Column('firstname', sa.String(length=64), nullable=True),
     sa.Column('lastname', sa.String(length=64), nullable=True),
+    sa.Column('company_name', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=64), nullable=False),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
     sa.Column('confirmed', sa.Boolean(), nullable=True),
     sa.Column('confirmed_on', sa.DateTime(), nullable=True),
-    sa.Column('location', sa.String(length=64), nullable=True),
+    sa.Column('phone', sa.String(length=64), nullable=True),
+    sa.Column('address', sa.String(length=64), nullable=True),
+    sa.Column('city', sa.String(length=64), nullable=True),
+    sa.Column('state', sa.String(length=64), nullable=True),
+    sa.Column('zipcode', sa.String(length=64), nullable=True),
+    sa.Column('two_factor', sa.Boolean(), nullable=True),
+    sa.Column('sms_notifications', sa.Boolean(), nullable=True),
+    sa.Column('email_notifications', sa.Boolean(), nullable=True),
     sa.Column('role_title', sa.String(length=64), nullable=True),
     sa.Column('id', sa.String(length=60), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -71,7 +79,6 @@ def upgrade():
     )
     op.create_table('manufacturers',
     sa.Column('id', sa.String(length=64), nullable=False),
-    sa.Column('company_name', sa.String(length=64), nullable=False),
     sa.Column('registration_date', sa.String(length=64), nullable=True),
     sa.Column('staff_num', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['id'], ['users.id'], ),
@@ -82,9 +89,18 @@ def upgrade():
     sa.ForeignKeyConstraint(['id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('shipments',
+    sa.Column('checkpoints', sa.JSON(), nullable=True),
+    sa.Column('destination', sa.String(length=64), nullable=False),
+    sa.Column('user_id', sa.String(length=64), nullable=True),
+    sa.Column('id', sa.String(length=60), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('wholesalers',
     sa.Column('id', sa.String(length=64), nullable=False),
-    sa.Column('company', sa.String(length=64), nullable=True),
     sa.ForeignKeyConstraint(['id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -120,7 +136,7 @@ def upgrade():
     sa.Column('price', sa.Integer(), nullable=True),
     sa.Column('min_order', sa.Integer(), nullable=True),
     sa.Column('available_stock', sa.Integer(), nullable=True),
-    sa.Column('unit_measure', sa.Enum(('tonne', 'kg', 'g', 'l', 'ml', 'pcs')), nullable=True),
+    sa.Column('unit_measure', sa.Enum(name='unit_measure'), nullable=True),
     sa.Column('inventory_id', sa.String(length=64), nullable=True),
     sa.Column('product_id', sa.String(length=64), nullable=True),
     sa.Column('id', sa.String(length=60), nullable=False),
@@ -130,13 +146,41 @@ def upgrade():
     sa.ForeignKeyConstraint(['product_id'], ['products.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('orders',
+    sa.Column('quantity', sa.Integer(), nullable=True),
+    sa.Column('total_price', sa.Float(), nullable=True),
+    sa.Column('status', sa.String(length=64), nullable=True),
+    sa.Column('order_date', sa.DateTime(), nullable=True),
+    sa.Column('delivery_date', sa.DateTime(), nullable=True),
+    sa.Column('qrcode', sa.String(length=128), nullable=True),
+    sa.Column('payment_method', sa.String(length=64), nullable=True),
+    sa.Column('payment_status', sa.String(length=64), nullable=True),
+    sa.Column('delivery_status', sa.String(length=64), nullable=True),
+    sa.Column('delivery_address', sa.String(length=128), nullable=True),
+    sa.Column('product_id', sa.String(length=64), nullable=True),
+    sa.Column('sender_id', sa.String(length=64), nullable=True),
+    sa.Column('recipient_id', sa.String(length=64), nullable=True),
+    sa.Column('listing_id', sa.String(length=64), nullable=True),
+    sa.Column('shipment_id', sa.String(length=64), nullable=True),
+    sa.Column('id', sa.String(length=60), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['listing_id'], ['listings.id'], ),
+    sa.ForeignKeyConstraint(['product_id'], ['products.id'], ),
+    sa.ForeignKeyConstraint(['recipient_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['sender_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['shipment_id'], ['shipments.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('items',
     sa.Column('batch_id', sa.String(length=64), nullable=True),
     sa.Column('qrcode', sa.String(length=64), nullable=True),
+    sa.Column('order_id', sa.String(length=64), nullable=True),
     sa.Column('id', sa.String(length=60), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['batch_id'], ['batches.id'], ),
+    sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
@@ -145,10 +189,12 @@ def upgrade():
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('items')
+    op.drop_table('orders')
     op.drop_table('listings')
     op.drop_table('batches')
     op.drop_table('products')
     op.drop_table('wholesalers')
+    op.drop_table('shipments')
     op.drop_table('retailers')
     op.drop_table('manufacturers')
     op.drop_table('inventories')

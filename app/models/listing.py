@@ -12,7 +12,7 @@ class Listing(BaseModel, db.Model):
     price = Column(Integer)
     min_order = Column(Integer)
     available_stock = Column(Integer)
-    unit_measure = Column(Enum(('tonne', 'kg', 'g', 'l', 'ml', 'pcs')))
+    unit_measure = Column(Enum(name='unit_measure', values=('tonne', 'kg', 'g', 'l', 'ml', 'pcs')))
 
     inventory_id = Column(String(64), ForeignKey('inventories.id'))
     inventory = relationship('Inventory', back_populates='listings')
